@@ -49,7 +49,18 @@
             return firstPart + secondPart;
         }
 
-        function makebox(xpos,ypos=200) {
+        function makebox(xpos,ypos) {
+
+            const state = getApplicationState();
+
+            if(!ypos)
+                ypos =
+                    Math.random() * (
+                        window.innerHeight - (
+                            state.startValues.itemWidth * 1.5
+                        )
+                    );
+
             return {
                 uuid: generateUID(),
                 xpos: xpos,
@@ -192,7 +203,7 @@
         function mouseup() {
             const state = getApplicationState();
             state.isDown = false;
-            console.log(state);
+            // console.log(state);
             // setApplicationState(state, 'mouseup');
         }
 
@@ -201,7 +212,7 @@
             let coverOutside = 2;
 
             let width = window.innerWidth;
-            let itemWidth = window.innerWidth * 0.2;
+            let itemWidth = window.innerWidth * 0.3;
             let qty = Math.floor((width / itemWidth))+coverOutside;
             let totalPixels = qty * itemWidth;
             let leftEdge = -1 * (totalPixels - width) / 2;
@@ -262,15 +273,13 @@
 
             if (
                 !state.startValues
-            ) {
+            )
                 startValues();
-            }
 
             if (
                 !state.boxes
-            ) {
+            )
                 initBoxes();
-            }
 
             if (
                 state.startValues
@@ -307,7 +316,7 @@
                 });
             }
 
-           window.requestAnimationFrame(render);
+            window.requestAnimationFrame(render);
 
         }
 
@@ -319,10 +328,10 @@
 
         window.addEventListener('resize', () => {
             startValues();
-            initBoxes();
+            // initBoxes();
         });
 
-        render();
+        window.requestAnimationFrame(render);
 
     }
 )();
