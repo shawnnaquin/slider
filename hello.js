@@ -6,14 +6,14 @@
         const canvas = document
             .getElementById("canvas");
 
-        let animationFrame = null;
 
         const state = [
             {
                 srcImage: 'https://source.unsplash.com/random',
-                margin: 75,
+                margin: 50,
                 isDown: false,
                 x: 0,
+                y: 0,
                 boxes: null,
                 startValues: null,
             }
@@ -49,10 +49,11 @@
             return firstPart + secondPart;
         }
 
-        function makebox(xpos) {
+        function makebox(xpos,ypos=200) {
             return {
                 uuid: generateUID(),
                 xpos: xpos,
+                ypos: ypos,
                 src: getApplicationState().srcImage,
                 image: new Image(),
                 alpha: 1,
@@ -74,6 +75,7 @@
             const state = getApplicationState();
             state.isDown = true;
             state.x = event.clientX;
+            state.y = event.clientY;
             // setApplicationState(state, 'mousedown');
 
         }
@@ -82,16 +84,19 @@
 
             const state = getApplicationState();
 
-            let {isDown,boxes,startValues,x,margin} = state;
+            let {isDown,boxes,startValues,x,y,margin} = state;
             let {itemWidth,rightEdge,leftEdge,qty} = startValues;
 
             if (
                 isDown
             ) {
                 x = x - event.clientX;
+                y = y - event.clientY;
                 boxes = boxes.map( box => {
 
                     box.xpos -= x;
+                    box.ypos -= y;
+
                     box.alpha = 0;
 
                     if (
@@ -111,7 +116,7 @@
                         box.alpha =
                             Math.max(
                                 0,
-                                -0.0024 * box.xpos + 5
+                                -0.0024 * box.xpos + 4
                             );
                     }
                     return box;
@@ -119,6 +124,7 @@
             }
 
             state.x = event.clientX;
+            state.y = event.clientY;
 
             let firstBoxX = boxes[boxes.length-1].xpos + itemWidth;
 
@@ -204,6 +210,7 @@
 
             const state = getApplicationState();
             state.x = startingpoint;
+            state.y = startingpoint;
 
             const startValues = {
                 width,
@@ -292,7 +299,7 @@
                     ctx.drawImage(
                         box.image,
                         box.xpos,
-                        200,
+                        box.ypos,
                         state.startValues.itemWidth,
                         state.startValues.itemWidth*1.5
                     );
