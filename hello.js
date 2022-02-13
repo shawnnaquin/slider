@@ -20,7 +20,7 @@
         ];
 
         function getApplicationState() {
-            return state[applicationState];
+            return {...state[applicationState]};
         }
 
         function setApplicationState(newstate, ref) {
@@ -87,7 +87,7 @@
             state.isDown = true;
             state.x = event.clientX;
             state.y = event.clientY;
-            // setApplicationState(state, 'mousedown');
+            setApplicationState(state, 'mousedown');
 
         }
 
@@ -196,6 +196,7 @@
 
             }
 
+            setApplicationState(state,'mousemove');
             // console.log(state.boxes);
 
         }
@@ -204,7 +205,7 @@
             const state = getApplicationState();
             state.isDown = false;
             // console.log(state);
-            // setApplicationState(state, 'mouseup');
+            setApplicationState(state, 'mouseup');
         }
 
         function startValues() {
@@ -235,7 +236,7 @@
 
             state.startValues = startValues;
 
-            // setApplicationState(state, 'init startValues');
+            setApplicationState(state, 'init startValues');
 
         }
 
@@ -261,7 +262,7 @@
 
             state.boxes = boxes;
 
-            // setApplicationState(state, 'init boxes');
+            setApplicationState(state, 'init boxes');
 
         }
 
