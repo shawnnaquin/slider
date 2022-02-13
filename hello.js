@@ -6,6 +6,7 @@
         const canvas = document
             .getElementById("canvas");
 
+        let animationFrame = null;
 
         const state = [
             {
@@ -268,71 +269,67 @@
 
         async function render() {
 
-            resizeCanvas();
-
             const state = getApplicationState();
 
-            if (
-                !state.startValues
-            )
-                startValues();
+            const ctx = canvas.getContext("2d");
 
-            if (
-                !state.boxes
-            )
-                initBoxes();
+            const p = await Promise.all(
+                state.boxes.map(box => preloadImage(box))
+            );
 
-            if (
-                state.startValues
-                && state.boxes
-            ) {
+            // console.log(toDelete);
+            ctx.clearRect(0,0,window.innerWidth, window.innerHeight);
 
-                const ctx = canvas.getContext("2d");
+            state.boxes.forEach( (box,index) => {
 
-                const p = await Promise.all(
-                    state.boxes.map(box => preloadImage(box))
+                ctx.globalAlpha = 1;
+
+                if (
+                    box.xpos < 0
+                    || box.xpos > (window.innerWidth * 0.9)
+                )
+                    ctx.globalAlpha = box.alpha;
+
+                ctx.drawImage(
+                    box.image,
+                    box.xpos,
+                    box.ypos,
+                    state.startValues.itemWidth,
+                    state.startValues.itemWidth*1.5
                 );
 
-                // console.log(toDelete);
-                ctx.clearRect(0,0,window.innerWidth, window.innerHeight);
+            });
 
-                state.boxes.forEach( (box,index) => {
-
-                    ctx.globalAlpha = 1;
-
-                    if (
-                        box.xpos < 0
-                        || box.xpos > (window.innerWidth * 0.9)
-                    )
-                        ctx.globalAlpha = box.alpha;
-
-                    ctx.drawImage(
-                        box.image,
-                        box.xpos,
-                        box.ypos,
-                        state.startValues.itemWidth,
-                        state.startValues.itemWidth*1.5
-                    );
-
-                });
-            }
-
-            window.requestAnimationFrame(render);
+            animationFrame = window.requestAnimationFrame(render);
 
         }
 
-        canvas.addEventListener('mousedown', mousedown);
-
-        canvas.addEventListener('mousemove', mousemove);
-
-        canvas.addEventListener('mouseup', mouseup);
-
-        window.addEventListener('resize', () => {
+        function resize() {
+            resizeCanvas();
             startValues();
-            // initBoxes();
-        });
+        }
 
-        window.requestAnimationFrame(render);
+        function appInit() {
+
+            resize();
+            initBoxes();
+            canvas.addEventListener('mousedown', mousedown);
+            canvas.addEventListener('mousemove', mousemove);
+            canvas.addEventListener('mouseup', mouseup);
+            window.addEventListener('resize', resize);
+            animationFrame = window.requestAnimationFrame(render);
+
+        }
+
+        function appDestroy() {
+            canvas.removeEventListener('mousedown', mousedown);
+            canvas.removeEventListener('mousemove', mousemove);
+            canvas.removeEventListener('mouseup', mouseup);
+            window.removeEventListener('resize', resize);
+            window.cancelAnimationFrame(animationFrame);
+        }
+
+        appInit();
 
     }
 )();
