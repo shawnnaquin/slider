@@ -197,7 +197,7 @@
 
             }
 
-            setApplicationState(state,'mousemove');
+            setApplicationState(state);
             // console.log(state.boxes);
 
         }
@@ -214,7 +214,11 @@
             let coverOutside = 2;
 
             let width = window.innerWidth;
-            let itemWidth = window.innerWidth * 0.3;
+
+            let itemWidth = window.innerWidth < 800
+                ? window.innerWidth * 0.9
+                : window.innerWidth * 0.3;
+
             let qty = Math.floor((width / itemWidth))+coverOutside;
             let totalPixels = qty * itemWidth;
             let leftEdge = -1 * (totalPixels - width) / 2;
@@ -307,12 +311,12 @@
         function resize() {
             resizeCanvas();
             startValues();
+            initBoxes();
         }
 
         function appInit() {
 
             resize();
-            initBoxes();
             canvas.addEventListener('mousedown', mousedown);
             canvas.addEventListener('mousemove', mousemove);
             canvas.addEventListener('mouseup', mouseup);
