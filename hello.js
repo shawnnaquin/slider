@@ -104,98 +104,17 @@
             ) {
                 x = x - event.clientX;
                 y = y - event.clientY;
-                boxes = boxes.map( box => {
+                // boxes = boxes.map( box => {
 
-                    box.xpos -= x;
-                    box.ypos -= y;
+                //     box.xpos -= x;
+                //     box.ypos -= y;
 
-                    box.alpha = 0;
-
-                    if (
-                        box.xpos < 0
-                    ) {
-                        box.alpha =
-                            Math.max(
-                                0,
-                                0.0020 * box.xpos + 1.0000
-                            );
-                    }
-
-                    if (
-                        box.xpos > window.innerWidth * 0.8
-                    ) {
-
-                        box.alpha =
-                            Math.max(
-                                0,
-                                -0.0024 * box.xpos + 4
-                            );
-                    }
-                    return box;
-                } );
+                //     return box;
+                // } );
             }
 
             state.x = event.clientX;
             state.y = event.clientY;
-
-            let firstBoxX = boxes[boxes.length-1].xpos + itemWidth;
-
-            let right = rightEdge - firstBoxX;
-
-            if (
-                right > 0
-            ) {
-
-                // console.log('ib');
-                let extraBoxes = Math.floor(right / itemWidth);
-
-                for (let i=0; i < extraBoxes; i++ ) {
-                    // console.log(i,itemWidth,firstBoxX);
-                    let box =  makebox(
-                        (i*itemWidth) + firstBoxX
-                    );
-
-                    box.xpos += margin;
-
-                    boxes.push(
-                        box
-                    );
-
-                }
-
-                // 50 * 0.1 = 0.5
-                // 20 * 0.1 = 0.2
-                // 0 * 0.1  = 0.0
-
-                // state.boxes = boxes.slice(boxes.length-qty);
-
-            }
-
-            else {
-
-                firstBoxX = boxes[0].xpos;
-                let left = (firstBoxX - leftEdge);
-                let extraBoxes = Math.floor(left / itemWidth);
-                // console.log(extraBoxes);
-
-                for (let i=0; i < extraBoxes; i++ ) {
-                    // console.log(-((i+1)*itemWidth - firstBoxX));
-                    let box =  makebox(
-                        // (i*itemWidth) - firstBoxX
-                        -((i+1)*itemWidth - firstBoxX)
-                    );
-
-                    box.xpos -= (i+1)*margin;
-
-                    boxes.unshift(
-                        box
-                    );
-
-                }
-
-                // state.boxes = boxes.slice(0, qty);
-
-            }
 
             setApplicationState(state);
             // console.log(state.boxes);
@@ -245,39 +164,46 @@
 
         }
 
+        function generateColumn(colIndex) {
+
+            const state = getApplicationState();
+            const {itemWidth,leftEdge} = state.startValues;
+            const {margin} = state;
+
+            let xpos = (colIndex*itemWidth) + leftEdge;
+            xpos += colIndex*margin;
+
+            const b = [];
+
+            b.push(makebox(xpos));
+
+            for(let p=0; p < 3; p++) {
+                let itemHeight = itemWidth * 1.5
+                let ypos =
+                    + (itemHeight * p)
+                    + (margin * p)
+                    + itemHeight
+                    + margin;
+                b.push(makebox(xpos, ypos));
+            }
+
+            return b;
+
+        }
+
         async function initBoxes() {
 
             const state = getApplicationState();
 
-            const {qty,itemWidth,leftEdge} = state.startValues;
-            const {margin} = state;
+            const {qty} = state.startValues;
 
             let boxes = [];
 
-            for(let i=0; i<qty; i++) {
-                let xpos = (i*itemWidth) + leftEdge;
-                xpos += i*margin;
-                boxes.push(makebox(xpos));
-                // boxes = boxes.slice(0,qty);
+            for(let colIndex=0; colIndex<qty; colIndex++) {
+                boxes.push(
+                    generateColumn(colIndex)
+                );
             }
-
-            for(let b in boxes) {
-
-                // console.log(b);
-                let h = itemWidth*1.5;
-
-                let totalItems = Math.ceil(window.innerHeight / (h+margin) + 1);
-                for (let t=0; t<totalItems; t++) {
-                    let iW = boxes[b].ypos + (t*h) + h + (margin*t)+margin;
-                    // console.log(iW);
-                    boxes.push(makebox(boxes[b].xpos,iW));
-                }
-
-            }
-
-            const centeri = Math.floor((boxes.length - 1) / 2);
-
-            boxes[centeri].center = true;
 
             state.boxes = boxes;
 
