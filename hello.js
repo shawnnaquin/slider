@@ -11,7 +11,7 @@
         const state = [
             {
                 srcImage: 'https://source.unsplash.com/random',
-                margin: 10,
+                margin: 50,
                 isDown: false,
                 x: 0,
                 y: 0,
@@ -102,15 +102,47 @@
             if (
                 isDown
             ) {
+
                 x = x - event.clientX;
                 y = y - event.clientY;
-                // boxes = boxes.map( box => {
 
-                //     box.xpos -= x;
-                //     box.ypos -= y;
+                for(let columns of boxes) {
 
-                //     return box;
-                // } );
+                    let firstybox = columns.map(b=>b.ypos);
+
+                    for(let box of columns) {
+
+                        let minybox = Math.min(...firstybox);
+
+                        if (
+                            box.ypos > window.innerHeight
+                        ) {
+                            console.log(minybox);
+                            box.ypos = minybox - (itemWidth * 1.5) - margin;
+                            // swap content;
+                            continue;
+                        }
+
+                        let maxybox = Math.max(...firstybox);
+
+                        if (
+                            box.ypos < -(itemWidth*1.5)
+                        ) {
+                            box.ypos = maxybox + margin + (itemWidth * 1.5);
+                            // swap content;
+                            continue;
+                        }
+
+                    }
+                }
+
+                for(let column of boxes ) {
+                    for (let box of column) {
+                        box.xpos -= x;
+                        box.ypos -= y;
+                    }
+                }
+
             }
 
             state.x = event.clientX;
@@ -179,7 +211,7 @@
 
             for(let p=0; p < 3; p++) {
                 let itemHeight = itemWidth * 1.5
-                let ypos =
+                let ypos = b[0].ypos
                     + (itemHeight * p)
                     + (margin * p)
                     + itemHeight
@@ -199,7 +231,7 @@
 
             let boxes = [];
 
-            for(let colIndex=0; colIndex<qty; colIndex++) {
+            for(let colIndex=0; colIndex<2; colIndex++) {
                 boxes.push(
                     generateColumn(colIndex)
                 );
@@ -216,31 +248,36 @@
             const state = getApplicationState();
 
             const ctx = canvas.getContext("2d");
+            const pbox = [];
 
-            const p = await Promise.all(
-                state.boxes.map(box => preloadImage(box))
-            );
+            for (let col of state.boxes) {
+                for(let box of col) {
+                    pbox.push(preloadImage(box))
+                }
+            }
 
             // console.log(toDelete);
             ctx.clearRect(0,0,window.innerWidth, window.innerHeight);
 
-            state.boxes.forEach( (box,index) => {
+            state.boxes.forEach( (col,index) => {
 
                 ctx.globalAlpha = 1;
+                for(let box of col) {
+                    if (
+                        box.xpos < 0
+                        || box.xpos > (window.innerWidth * 0.9)
+                    )
+                        ctx.globalAlpha = box.alpha;
 
-                if (
-                    box.xpos < 0
-                    || box.xpos > (window.innerWidth * 0.9)
-                )
-                    ctx.globalAlpha = box.alpha;
+                    ctx.drawImage(
+                        box.image,
+                        box.xpos,
+                        box.ypos,
+                        state.startValues.itemWidth,
+                        state.startValues.itemWidth*1.5
+                    );
+                }
 
-                ctx.drawImage(
-                    box.image,
-                    box.xpos,
-                    box.ypos,
-                    state.startValues.itemWidth,
-                    state.startValues.itemWidth*1.5
-                );
 
             });
 
