@@ -11,7 +11,7 @@
         const state = [
             {
                 srcImage: 'https://source.unsplash.com/random',
-                margin: 50,
+                margin: 10,
                 isDown: false,
                 x: 0,
                 y: 0,
@@ -167,7 +167,7 @@
                 // 20 * 0.1 = 0.2
                 // 0 * 0.1  = 0.0
 
-                state.boxes = boxes.slice(boxes.length-qty);
+                // state.boxes = boxes.slice(boxes.length-qty);
 
             }
 
@@ -193,7 +193,7 @@
 
                 }
 
-                state.boxes = boxes.slice(0, qty);
+                // state.boxes = boxes.slice(0, qty);
 
             }
 
@@ -216,8 +216,8 @@
             let width = window.innerWidth;
 
             let itemWidth = window.innerWidth < 800
-                ? window.innerWidth * 0.9
-                : window.innerWidth * 0.3;
+                ? window.innerWidth * 0.75
+                : window.innerWidth * 0.1;
 
             let qty = Math.floor((width / itemWidth))+coverOutside;
             let totalPixels = qty * itemWidth;
@@ -258,7 +258,21 @@
                 let xpos = (i*itemWidth) + leftEdge;
                 xpos += i*margin;
                 boxes.push(makebox(xpos));
-                boxes = boxes.slice(0,qty);
+                // boxes = boxes.slice(0,qty);
+            }
+
+            for(let b in boxes) {
+
+                // console.log(b);
+                let h = itemWidth*1.5;
+
+                let totalItems = Math.ceil(window.innerHeight / (h+margin) + 1);
+                for (let t=0; t<totalItems; t++) {
+                    let iW = boxes[b].ypos + (t*h) + h + (margin*t)+margin;
+                    // console.log(iW);
+                    boxes.push(makebox(boxes[b].xpos,iW));
+                }
+
             }
 
             const centeri = Math.floor((boxes.length - 1) / 2);
